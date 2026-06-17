@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sesiune Traducere - Licenta</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 16px;
+        }
+
+        /* Bara de sus cu numele aplicatiei si actiunile contului */
+        .bara-sus {
+            max-width: 900px;
+            margin: 0 auto 16px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .bara-sus .titlu-aplicatie {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0056b3;
+        }
+
+        .bara-sus .actiuni-cont {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .bara-sus .salut {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .btn-link-istoric {
+            background: transparent;
+            color: #0056b3;
+            border: 1px solid #0056b3;
+            padding: 8px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .btn-link-istoric:hover { background: #0056b3; color: white; }
+
+        .btn-deconectare {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .btn-deconectare:hover { background: #5a6268; }
+
+        /* Containerul principal cu cele doua zone */
+        .container-principal {
+            background-color: white;
+            padding: 24px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 { color: #0056b3; margin-top: 0; font-size: 22px; }
+        h3 { color: #0056b3; margin-top: 0; font-size: 17px; }
+
+        /* Eticheta pentru fiecare sectiune */
+        .sectiune {
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .sectiune:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        /* Cutia pentru text dictat */
+        .zona-text {
+            background-color: #eef5ff;
+            border: 2px dashed #0056b3;
+            padding: 18px;
+            border-radius: 10px;
+            min-height: 70px;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 14px;
+            word-break: break-word;
+            line-height: 1.5;
+        }
+
+        /* Cutia unde apare camera. Streaming-ul Python ruleaza la 640x480 (raport 4:3),
+           deci si containerul trebuie sa fie 4:3 ca sa nu apara dungi negre laterale. */
+        .zona-video {
+            width: 100%;
+            max-width: 720px;
+            aspect-ratio: 4 / 3;
+            background-color: #000;
+            margin: 0 auto 14px auto;
+            border: 3px solid #0056b3;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 15px;
+            line-height: 1.5;
+            text-align: center;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .zona-video #mesaj-camera { padding: 20px; }
+        /* Raportul containerului (4:3) coincide cu cel al stream-ului, deci
+           object-fit: cover umple intregul chenar fara dungi negre. */
+        #stream-video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        /* Butoanele de actiune */
+        .grup-butoane {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        button.btn-actiune {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 130px;
+            transition: opacity 0.2s;
+        }
+
+        button.btn-actiune:hover { opacity: 0.85; }
+
+        .btn-start { background-color: #28a745; color: white; }
+        .btn-stop { background-color: #dc3545; color: white; }
+        .btn-salveaza { background-color: #ffc107; color: #333; }
+        .btn-sterge { background-color: #6c757d; color: white; }
+
+        /* Conversatia (lista mesajelor salvate) */
+        .conversatie {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 12px;
+        }
+
+        .conversatie .mesaj {
+            margin-bottom: 10px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 80%;
+            font-size: 14px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .conversatie .mesaj.microfon {
+            background: #e3f2fd;
+            border-left: 3px solid #1976d2;
+            margin-right: auto;
+        }
+
+        .conversatie .mesaj.semne {
+            background: #fff3e0;
+            border-left: 3px solid #f57c00;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .conversatie .mesaj .info {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .conversatie .gol {
+            color: #999;
+            font-style: italic;
+            text-align: center;
+            padding: 30px 10px;
+        }
+
+        /* Butonul mare de incheiere */
+        .zona-finalizare {
+            margin-top: 26px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+            text-align: center;
+        }
+
+        .btn-incheie {
+            background: #c82333;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            min-width: 250px;
+        }
+
+        .btn-incheie:hover { background: #a71d2a; }
+
+        .info-sesiune {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        /* Adaptare pentru ecrane mai mici */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container-principal { padding: 16px; }
+            .bara-sus {
+                padding: 12px 14px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .bara-sus .actiuni-cont { width: 100%; justify-content: space-between; }
+            h1 { font-size: 19px; }
+            h3 { font-size: 16px; }
+            button.btn-actiune {
+                flex: 1 1 calc(50% - 5px);
+                min-width: 0;
+                padding: 12px 8px;
+                font-size: 13px;
+            }
+            .conversatie .mesaj { max-width: 92%; }
+            .btn-incheie {
+                width: 100%;
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bara-sus">
+        <div class="titlu-aplicatie">Sistem de traducere LMG-R</div>
+        <div class="actiuni-cont">
+            <span class="salut">Salut, {{ utilizator.prenume }}!</span>
+            <a href="/istoric" class="btn-link-istoric">Istoric conversatii</a>
+            <form action="/logout" method="POST" style="margin: 0;">
+                <button type="submit" class="btn-deconectare">Deconectare</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container-principal">
+        <h1>Sesiune de comunicare</h1>
+        <div class="info-sesiune">Sesiunea curenta: nr. {{ sesiune.id }}, inceputa la {{ sesiune.data_start.strftime('%H:%M') }}.</div>
+
+        <!-- Sectiunea pentru microfon (vorbire catre text) -->
+        <div class="sectiune">
+            <h3>Persoana auzitoare (microfon)</h3>
+            <div class="zona-text" id="text-subtitrare">
+                <em>Apasa pe Start microfon si incepe sa vorbesti. Cand apesi Stop, textul se salveaza automat in conversatie.</em>
+            </div>
+            <div class="grup-butoane">
+                <button class="btn-actiune btn-start" onclick="pornesteMicrofonul()">Start microfon</button>
+                <button class="btn-actiune btn-stop" onclick="opresteMicrofonul()">Stop microfon</button>
+                <button class="btn-actiune btn-sterge" onclick="curataMicrofon()">Sterge textul</button>
+            </div>
+        </div>
+
+        <!-- Sectiunea pentru camera (semne catre text) -->
+        <div class="sectiune">
+            <h3>Persoana cu deficiente de vorbire (camera)</h3>
+            <div class="zona-video" id="container-video">
+                <span id="mesaj-camera">Camera este oprita. Apasa Start camera pentru a porni recunoasterea semnelor.</span>
+                <img id="stream-video" src="" style="display: none;">
+            </div>
+
+            <!-- Zona text - oglindeste propozitia detectata pentru a putea fi citita cu voce -->
+            <div class="zona-text" id="text-semne">
+                <em>Propozitia detectata din semne va aparea aici dupa ce porneste camera.</em>
+            </div>
+
+            <div class="grup-butoane">
+                <button class="btn-actiune btn-start" onclick="pornesteCamera()">Start camera</button>
+                <button class="btn-actiune btn-stop" onclick="opresteCamera()">Pauza camera</button>
+                <button class="btn-actiune btn-salveaza" onclick="citesteTextSemne()" id="btn-citeste-semne">Citeste cu voce tare</button>
+            </div>
+        </div>
+
+        <!-- Conversatia curenta (mesajele deja salvate) -->
+        <div class="sectiune">
+            <h3>Conversatia curenta</h3>
+            <div class="conversatie" id="lista-conversatie">
+                <div class="gol">Inca nu ai salvat niciun mesaj in aceasta sesiune.</div>
+            </div>
+        </div>
+
+        <!-- Butonul de incheiere sesiune -->
+        <div class="zona-finalizare">
+            <form action="/incheie_sesiune" method="POST" onsubmit="return confirm('Sigur incheiezi sesiunea curenta? Toate mesajele raman salvate in istoric.');">
+                <button type="submit" class="btn-incheie">Incheie sesiunea</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // LOGICA PENTRU MICROFON (Web Speech API)
+        let recunoastere = null;
+        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+            recunoastere = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recunoastere.lang = 'ro-RO';
+            recunoastere.continuous = true;
+
+            recunoastere.onresult = function(event) {
+                let textFinal = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    textFinal += event.results[i][0].transcript;
+                }
+                document.getElementById('text-subtitrare').innerText = textFinal;
+            };
+        }
+
+        function pornesteMicrofonul() {
+            if (!recunoastere) {
+                alert('Browserul tau nu suporta recunoasterea vocala. Foloseste Chrome sau Edge.');
+                return;
+            }
+            document.getElementById('text-subtitrare').innerText = 'Ascult...';
+            try { recunoastere.start(); } catch (e) { /* deja pornit */ }
+        }
+
+        function opresteMicrofonul() {
+            if (recunoastere) {
+                try { recunoastere.stop(); } catch (e) { /* deja oprit */ }
+            }
+
+            // Daca exista text valid in zona, il salvam automat in conversatie.
+            const zona = document.getElementById('text-subtitrare');
+            const text = zona.innerText.trim();
+            const esteTextValid = text
+                && text !== 'Ascult...'
+                && !text.startsWith('Apasa pe');
+
+            if (esteTextValid) {
+                salveazaMesaj(text, 'microfon');
+                curataMicrofon();
+            }
+        }
+
+        function curataMicrofon() {
+            document.getElementById('text-subtitrare').innerHTML = '<em>Apasa pe Start microfon si incepe sa vorbesti.</em>';
+        }
+
+        function salveazaMesaj(text, sursa) {
+            const date = new FormData();
+            date.append('text', text);
+            date.append('sursa', sursa);
+
+            fetch('/salveaza_mesaj', { method: 'POST', body: date })
+                .then(r => r.json())
+                .then(rasp => {
+                    if (rasp.succes) {
+                        actualizeazaConversatia();
+                    } else {
+                        alert('Eroare la salvare: ' + (rasp.eroare || 'necunoscuta'));
+                    }
+                })
+                .catch(e => alert('Eroare de retea la salvare.'));
+        }
+
+        function actualizeazaConversatia() {
+            fetch('/mesaje_sesiune_curenta')
+                .then(r => r.json())
+                .then(rasp => {
+                    const lista = document.getElementById('lista-conversatie');
+                    if (!rasp.mesaje || rasp.mesaje.length === 0) {
+                        lista.innerHTML = '<div class="gol">Inca nu ai salvat niciun mesaj in aceasta sesiune.</div>';
+                        return;
+                    }
+                    let html = '';
+                    rasp.mesaje.forEach(m => {
+                        const etichetaSursa = m.sursa === 'microfon' ? 'Vorbit' : 'Semnat';
+                        html += '<div class="mesaj ' + m.sursa + '">'
+                              + '<div class="info">' + etichetaSursa + ' la ' + m.data + '</div>'
+                              + escapaHtml(m.text)
+                              + '</div>';
+                    });
+                    lista.innerHTML = html;
+                    lista.scrollTop = lista.scrollHeight;
+                });
+        }
+
+        function escapaHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // LOGICA PENTRU CAMERA (recunoastere semne)
+        // Flask trimite cadre video procesate cu recunoasterea literelor si expresiilor.
+        // Imaginile vin din ruta /video_feed ca un flux continuu, iar browserul le
+        // afiseaza automat in tag-ul img.
+        function pornesteCamera() {
+            console.log('[TTS-DEBUG] pornesteCamera apelat');
+            document.getElementById('stream-video').src = '/video_feed';
+            document.getElementById('stream-video').style.display = 'block';
+            document.getElementById('mesaj-camera').style.display = 'none';
+            try {
+                porneste_actualizare_text_semne();
+            } catch (e) {
+                console.error('[TTS-DEBUG] eroare la pornirea actualizarii:', e);
+            }
+        }
+
+        function opresteCamera() {
+            // Oprim afisarea inainte sa cerem serverul sa elibereze camera,
+            // ca sa nu mai ramana un cadru blocat pe ecran.
+            document.getElementById('stream-video').src = '';
+            document.getElementById('stream-video').style.display = 'none';
+            document.getElementById('mesaj-camera').style.display = 'flex';
+
+            opreste_actualizare_text_semne();
+
+            fetch('/opreste_camera', { method: 'POST' })
+                .then(r => r.json())
+                .then(rasp => {
+                    if (rasp && rasp.text_salvat) {
+                        actualizeazaConversatia();
+                    }
+                })
+                .catch(() => { /* eroare de retea ignorata aici */ });
+        }
+
+        // === TEXT-TO-SPEECH PENTRU PROPOZITIA DETECTATA DIN SEMNE ===
+        // Variabilele sunt declarate cu var ca sa fie hoisted impreuna cu functiile.
+
+        var intervalTextSemne = null;
+        var ultimulTextDetectat = '';
+
+        function porneste_actualizare_text_semne() {
+            console.log('[TTS-DEBUG] porneste_actualizare_text_semne apelat, interval curent:', intervalTextSemne);
+            if (intervalTextSemne !== null) return;
+            intervalTextSemne = setInterval(actualizeaza_text_semne, 1000);
+            console.log('[TTS-DEBUG] interval pornit:', intervalTextSemne);
+            // Apelam o data imediat ca sa nu mai astepte 1 secunda
+            actualizeaza_text_semne();
+        }
+
+        function opreste_actualizare_text_semne() {
+            if (intervalTextSemne !== null) {
+                clearInterval(intervalTextSemne);
+                intervalTextSemne = null;
+            }
+        }
+
+        function actualizeaza_text_semne() {
+            fetch('/text_semne_curent')
+                .then(r => r.json())
+                .then(rasp => {
+                    console.log('[TTS-DEBUG] raspuns server:', rasp);
+                    const zona = document.getElementById('text-semne');
+                    if (!zona) {
+                        console.error('[TTS-DEBUG] elementul text-semne nu exista!');
+                        return;
+                    }
+                    const text = rasp.text || '';
+                    const cuvantInCurs = rasp.cuvant_in_curs || '';
+
+                    if (text || cuvantInCurs) {
+                        let afisaj = text;
+                        if (cuvantInCurs) {
+                            afisaj += (text ? ' ' : '') + '<span style="background:#fff3cd;padding:2px 6px;border-radius:4px;">' + cuvantInCurs + '_</span>';
+                        }
+                        zona.innerHTML = afisaj;
+                        ultimulTextDetectat = text;
+                    } else {
+                        zona.innerHTML = '<em>Asteapta semne in fata camerei...</em>';
+                    }
+                })
+                .catch(err => {
+                    console.error('[TTS-DEBUG] eroare la fetch:', err);
+                });
+        }
+
+        function citesteTextSemne() {
+            console.log('[TTS-DEBUG] citesteTextSemne apelat, ultimul text:', ultimulTextDetectat);
+            if (!('speechSynthesis' in window)) {
+                alert('Browser-ul tau nu suporta sinteza vocala.');
+                return;
+            }
+
+            const textDeCitit = ultimulTextDetectat;
+            if (!textDeCitit) {
+                alert('Nu exista inca o propozitie detectata din semne.');
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+
+            const rostire = new SpeechSynthesisUtterance(textDeCitit);
+            rostire.lang = 'ro-RO';
+            rostire.rate = 0.95;
+            rostire.pitch = 1.0;
+            rostire.volume = 1.0;
+
+            const voci = window.speechSynthesis.getVoices();
+            const voceRomana = voci.find(v => v.lang === 'ro-RO' || v.lang.startsWith('ro'));
+            if (voceRomana) {
+                rostire.voice = voceRomana;
+            }
+
+            window.speechSynthesis.speak(rostire);
+        }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => {};
+        }
+
+        // La incarcarea paginii, citim daca exista deja mesaje salvate
+        actualizeazaConversatia();
+    </script>
+
+</body>
+</html>

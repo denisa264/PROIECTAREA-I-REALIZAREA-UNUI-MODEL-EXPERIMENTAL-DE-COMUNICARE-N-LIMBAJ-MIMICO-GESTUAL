@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Istoric Conversatii - Licenta</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 16px;
+        }
+
+        .bara-sus {
+            max-width: 900px;
+            margin: 0 auto 16px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+
+        .bara-sus .titlu-aplicatie {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0056b3;
+        }
+
+        .bara-sus .actiuni-cont {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .bara-sus .salut { font-size: 14px; color: #555; }
+
+        .btn-link-app {
+            background: #0056b3;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .btn-link-app:hover { background: #004494; }
+
+        .btn-deconectare {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .btn-deconectare:hover { background: #5a6268; }
+
+        .container-principal {
+            background-color: white;
+            padding: 24px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 { color: #0056b3; margin-top: 0; font-size: 24px; }
+
+        .gol-total {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+            font-size: 16px;
+        }
+
+        .gol-total a {
+            color: #0056b3;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        /* Cartonas pentru fiecare sesiune */
+        .sesiune-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+
+        .sesiune-antet {
+            background: #eef5ff;
+            padding: 12px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .sesiune-antet:hover { background: #dde9f9; }
+
+        .sesiune-antet .denumire {
+            font-weight: bold;
+            color: #0056b3;
+            font-size: 15px;
+        }
+
+        .sesiune-antet .stare {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .sesiune-antet .stare.activa {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .sesiune-continut {
+            padding: 16px 18px;
+            background: white;
+            display: none;
+        }
+
+        .sesiune-continut.deschis { display: block; }
+
+        .mesaj-istoric {
+            margin-bottom: 10px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 80%;
+            font-size: 14px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .mesaj-istoric.microfon {
+            background: #e3f2fd;
+            border-left: 3px solid #1976d2;
+            margin-right: auto;
+        }
+
+        .mesaj-istoric.semne {
+            background: #fff3e0;
+            border-left: 3px solid #f57c00;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .mesaj-istoric .info {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .mesaj-istoric-gol {
+            color: #999;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .indicator-rulou {
+            font-size: 12px;
+            color: #0056b3;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container-principal { padding: 16px; }
+            .bara-sus {
+                padding: 12px 14px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .bara-sus .actiuni-cont { width: 100%; justify-content: space-between; }
+            h1 { font-size: 20px; }
+            .mesaj-istoric { max-width: 92%; }
+            .sesiune-antet { padding: 10px 14px; }
+            .sesiune-continut { padding: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bara-sus">
+        <div class="titlu-aplicatie">Sistem de traducere LMG-R</div>
+        <div class="actiuni-cont">
+            <span class="salut">Salut, {{ utilizator.prenume }}!</span>
+            <a href="/aplicatie" class="btn-link-app">Inapoi la aplicatie</a>
+            <form action="/logout" method="POST" style="margin: 0;">
+                <button type="submit" class="btn-deconectare">Deconectare</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container-principal">
+        <h1>Istoricul conversatiilor</h1>
+
+        {% if not sesiuni %}
+            <div class="gol-total">
+                Nu ai inregistrat inca nicio sesiune.<br>
+                <a href="/aplicatie">Mergi la aplicatie</a> ca sa incepi prima conversatie.
+            </div>
+        {% else %}
+            {% for s in sesiuni %}
+            <div class="sesiune-card">
+                <div class="sesiune-antet" onclick="comutaSesiune({{ s.id }})">
+                    <div>
+                        <div class="denumire">Sesiunea nr. {{ s.id }}</div>
+                        <div class="stare {{ 'activa' if not s.data_end else '' }}">
+                            Inceputa la {{ s.data_start.strftime('%d.%m.%Y, %H:%M') }}
+                            {% if s.data_end %}
+                                | Incheiata la {{ s.data_end.strftime('%H:%M') }}
+                            {% else %}
+                                | In desfasurare
+                            {% endif %}
+                            | {{ s.mesaje|length }} mesaj{{ 'e' if s.mesaje|length != 1 else '' }}
+                        </div>
+                    </div>
+                    <div class="indicator-rulou" id="indicator-{{ s.id }}">Vezi mesajele</div>
+                </div>
+                <div class="sesiune-continut" id="continut-{{ s.id }}">
+                    {% if s.mesaje %}
+                        {% for m in s.mesaje %}
+                            <div class="mesaj-istoric {{ m.sursa }}">
+                                <div class="info">
+                                    {{ 'Vorbit' if m.sursa == 'microfon' else 'Semnat' }} la {{ m.data.strftime('%H:%M:%S') }}
+                                </div>
+                                {{ m.text }}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="mesaj-istoric-gol">Aceasta sesiune nu contine niciun mesaj salvat.</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        function comutaSesiune(id) {
+            const continut = document.getElementById('continut-' + id);
+            const indicator = document.getElementById('indicator-' + id);
+            if (continut.classList.contains('deschis')) {
+                continut.classList.remove('deschis');
+                indicator.textContent = 'Vezi mesajele';
+            } else {
+                continut.classList.add('deschis');
+                indicator.textContent = 'Ascunde mesajele';
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stergere Cont</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .cutie-stergere {
+            background: white;
+            padding: 36px 32px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 420px;
+        }
+
+        h2 { color: #dc3545; text-align: center; margin-top: 0; font-size: 22px; }
+        p { color: #555; text-align: center; font-size: 14px; line-height: 1.5; }
+
+        label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #555;
+            display: block;
+            margin-top: 16px;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 24px;
+        }
+
+        button:hover { background: #c82333; }
+
+        .buton-inapoi {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #0056b3;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .buton-inapoi:hover { text-decoration: underline; }
+
+        .mesaj-rosu {
+            background: #ffe6e6;
+            color: #cc0000;
+            padding: 14px;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            text-align: center;
+            font-weight: bold;
+            border-left: 5px solid #cc0000;
+            font-size: 14px;
+        }
+
+        @media (max-width: 400px) {
+            .cutie-stergere { padding: 28px 22px; }
+            h2 { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cutie-stergere">
+        <h2>Stergere definitiva</h2>
+        <p>Atentie! Aceasta actiune este ireversibila. Toate datele tale, sesiunile si mesajele vor fi sterse definitiv din baza de date.</p>
+
+        {% if mesaj_rosu %} <div class="mesaj-rosu">{{ mesaj_rosu }}</div> {% endif %}
+
+        <form action="/stergere_cont" method="POST">
+            <label>Confirma emailul sau telefonul:</label>
+            <input type="text" name="cont" required>
+
+            <label>Confirma parola:</label>
+            <input type="password" name="parola" required>
+
+            <button type="submit">Confirma stergerea contului</button>
+        </form>
+
+        <a href="/" class="buton-inapoi">M am razgandit. Inapoi la conectare.</a>
+    </div>
+</body>
+</html>

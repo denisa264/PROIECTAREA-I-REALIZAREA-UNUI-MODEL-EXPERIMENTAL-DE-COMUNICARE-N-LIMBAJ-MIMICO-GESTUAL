@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicatie Licenta</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .cutie-mare {
+            display: flex;
+            width: 100%;
+            max-width: 850px;
+            min-height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .partea-stanga {
+            width: 40%;
+            background: #0056b3;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .partea-stanga h1 { font-size: 28px; margin: 0 0 12px 0; }
+        .partea-stanga p { font-size: 15px; line-height: 1.5; margin: 0; }
+
+        .partea-dreapta {
+            width: 60%;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .partea-dreapta h2 { margin-top: 0; color: #333; font-size: 22px; }
+
+        label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input[type="text"], input[type="email"], input[type="tel"], input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0 16px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover { background: #004494; }
+
+        .link-schimbare {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #0056b3;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .mesaj-rosu {
+            background: #ffe6e6;
+            color: #cc0000;
+            padding: 14px;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            text-align: center;
+            font-weight: bold;
+            border-left: 5px solid #cc0000;
+            font-size: 14px;
+        }
+
+        .mesaj-verde {
+            background: #e6ffe6;
+            color: #008000;
+            padding: 14px;
+            border-radius: 6px;
+            margin-bottom: 18px;
+            text-align: center;
+            font-weight: bold;
+            border-left: 5px solid #008000;
+            font-size: 14px;
+        }
+
+        .mesaj-gdpr {
+            margin-top: 20px;
+            font-size: 13px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .mesaj-gdpr a {
+            color: #dc3545;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .mesaj-gdpr a:hover { text-decoration: underline; }
+
+        .asterisc { color: red; font-weight: bold; font-size: 14px; }
+
+        .mesaj-obligatoriu {
+            font-size: 13px;
+            color: #555;
+            text-align: center;
+            margin-top: 18px;
+            font-style: italic;
+        }
+
+        .zona-termeni {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .rand-nume-prenume {
+            display: flex;
+            gap: 15px;
+        }
+
+        .rand-nume-prenume > div { width: 100%; }
+
+        /* Adaptare pentru ecrane sub 750px (tablete in portret si telefoane) */
+        @media (max-width: 750px) {
+            .cutie-mare {
+                flex-direction: column;
+                max-width: 480px;
+            }
+            .partea-stanga, .partea-dreapta {
+                width: 100%;
+            }
+            .partea-stanga {
+                padding: 24px;
+            }
+            .partea-stanga h1 { font-size: 22px; }
+            .partea-stanga p { font-size: 14px; }
+            .partea-dreapta {
+                padding: 28px 24px;
+            }
+            .rand-nume-prenume {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+
+        @media (max-width: 380px) {
+            body { padding: 8px; }
+            .partea-dreapta { padding: 20px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="cutie-mare">
+        <div class="partea-stanga">
+            <h1>Bine ai venit!</h1>
+            <p>Proiectarea și realizarea unui model experimental de comunicare în limbaj mimico-gestual</p>
+        </div>
+
+        <div class="partea-dreapta">
+
+            {% if mesaj_rosu %} <div class="mesaj-rosu">{{ mesaj_rosu }}</div> {% endif %}
+            {% if mesaj_verde %} <div class="mesaj-verde">{{ mesaj_verde }}</div> {% endif %}
+
+            <div id="formular-login">
+                <h2>Intra in cont</h2>
+                <form action="/login" method="POST">
+                    <label>Email sau telefon <span class="asterisc">*</span></label>
+                    <input type="text" name="cont" required>
+
+                    <label>Parola <span class="asterisc">*</span></label>
+                    <input type="password" name="parola" required>
+
+                    <button type="submit">Autentificare</button>
+                </form>
+                <div class="link-schimbare" onclick="arataInregistrare()">Creeaza un cont</div>
+            </div>
+
+            <div id="formular-inregistrare" style="display: none;">
+                <h2>Cont nou</h2>
+                <form action="/inregistrare" method="POST">
+                    <div class="rand-nume-prenume">
+                        <div>
+                            <label>Nume <span class="asterisc">*</span></label>
+                            <input type="text" name="nume" required>
+                        </div>
+                        <div>
+                            <label>Prenume <span class="asterisc">*</span></label>
+                            <input type="text" name="prenume" required>
+                        </div>
+                    </div>
+
+                    <label>Email <span class="asterisc">*</span></label>
+                    <input type="email" name="email" required>
+
+                    <label>Telefon <span class="asterisc">*</span></label>
+                    <input type="tel" name="telefon" required>
+
+                    <label>Parola <span class="asterisc">*</span></label>
+                    <input type="password" name="parola" required>
+
+                    <div class="zona-termeni">
+                        <input type="checkbox" required style="width: auto; margin: 0;">
+                        <span>Sunt de acord cu <a href="/termeni" target="_blank" style="color: #0056b3; font-weight: bold;">Termenii si Conditiile</a>. <span class="asterisc">*</span></span>
+                    </div>
+
+                    <button type="submit">Inregistreaza te</button>
+                </form>
+                <div class="link-schimbare" onclick="arataLogin()">Ai deja cont? Autentifica te</div>
+            </div>
+
+            <div class="mesaj-obligatoriu">
+                Campurile marcate cu <span class="asterisc">*</span> sunt obligatorii.
+            </div>
+
+            <div class="mesaj-gdpr">
+                Doresti eliminarea datelor tale din sistem? <br>
+                <a href="/stergere_cont">Dezabonare si stergere date</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function arataInregistrare() {
+            document.getElementById('formular-login').style.display = 'none';
+            document.getElementById('formular-inregistrare').style.display = 'block';
+        }
+        function arataLogin() {
+            document.getElementById('formular-login').style.display = 'block';
+            document.getElementById('formular-inregistrare').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

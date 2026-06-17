@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termeni si Conditii - Licenta Stanciu Denisa</title>
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .cutie-termeni {
+            background-color: #ffffff;
+            padding: 36px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            margin: 20px 0;
+        }
+
+        .antet-document {
+            text-align: center;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        h1 { color: #0056b3; font-size: 22px; margin: 5px 0; }
+        h2 {
+            color: #333;
+            font-size: 18px;
+            margin-top: 22px;
+            border-left: 4px solid #0056b3;
+            padding-left: 10px;
+        }
+
+        p, li { color: #555; line-height: 1.6; font-size: 15px; }
+
+        .scoala {
+            font-weight: bold;
+            color: #666;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .buton-inapoi {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background-color: #0056b3;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .buton-inapoi:hover { background-color: #004494; }
+
+        @media (max-width: 600px) {
+            body { padding: 10px; align-items: flex-start; }
+            .cutie-termeni { padding: 24px 20px; margin: 10px 0; }
+            h1 { font-size: 19px; }
+            h2 { font-size: 16px; }
+            p, li { font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cutie-termeni">
+        <div class="antet-document">
+            <div class="scoala">UNSTPB - Facultatea FIIR</div>
+            <h1>Termeni si Conditii de Utilizare</h1>
+            <p>Proiect de licenta: Informatica Aplicata in Inginerie Industriala</p>
+        </div>
+
+        <p>Prezentul document stabileste regulile de utilizare a aplicatiei dezvoltate de studenta <strong>Stanciu Denisa-Georgiana</strong>.</p>
+
+        <h2>1. Operatorul de date</h2>
+        <p>Datele colectate prin intermediul acestei platforme sunt gestionate in scop academic de catre studenta Stanciu Denisa-Georgiana, sub indrumarea cadrului didactic coordonator din cadrul FIIR - UNSTPB.</p>
+
+        <h2>2. Ce date colectam si de ce</h2>
+        <ul>
+            <li><strong>Date de identificare:</strong> nume, prenume, email si telefon. Acestea sunt necesare pentru crearea unei baze de date a utilizatorilor care au testat aplicatia.</li>
+            <li><strong>Mesajele din conversatii:</strong> textul rostit la microfon si textul tradus din limbajul semnelor, salvate la cererea explicita a utilizatorului. Aceste mesaje raman asociate contului si pot fi sterse oricand impreuna cu contul.</li>
+            <li><strong>Date video:</strong> aplicatia utilizeaza camera web pentru a detecta punctele cheie ale mainii prin tehnologia MediaPipe. Imaginile video <strong>nu sunt salvate</strong>; procesarea are loc in timp real, local, pe acest sistem.</li>
+        </ul>
+
+        <h2>3. Accesul la date si stocarea</h2>
+        <p>Informatiile introduse in baza de date pot fi consultate exclusiv de catre:</p>
+        <ul>
+            <li>Studenta coordonatoare a proiectului;</li>
+            <li>Profesorul coordonator de licenta;</li>
+            <li>Membrii Comisiei de Examinare din cadrul facultatii FIIR.</li>
+        </ul>
+        <p>Toate datele vor fi pastrate pe o perioada de <strong>12 luni</strong>, dupa care vor fi sterse definitiv din sistem.</p>
+
+        <h2>4. Limitarea raspunderii</h2>
+        <p>Aceasta aplicatie este un <strong>prototip de cercetare</strong> aflat in faza de dezvoltare. Desi depunem toate eforturile pentru acuratete, nu garantam traducerea corecta a limbajului semnelor in proportie de 100% si nu ne asumam raspunderea pentru erori de interpretare in situatii critice.</p>
+
+        <h2>5. Drepturile utilizatorului</h2>
+        <p>Prin utilizarea aplicatiei, va exprimati acordul cu cele de mai sus. Aveti dreptul de a solicita stergerea datelor dvs. din baza de date in orice moment inainte de sustinerea examenului de licenta.</p>
+
+        <a href="#" onclick="window.close(); return false;" class="buton-inapoi">Am inteles, inchide aceasta pagina</a>
+    </div>
+
+</body>
+</html>
