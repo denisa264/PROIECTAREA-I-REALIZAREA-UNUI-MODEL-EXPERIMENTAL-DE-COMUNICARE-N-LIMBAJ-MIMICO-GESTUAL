@@ -38,13 +38,11 @@ EXPRESII_PATH = os.path.join(FOLDER_CURENT, "expresii_list.npy")
 
 NR_SECVENTE = 50
 LEN_SECVENTA = 30
-# Vector redus: corp (17*4) + mana stanga (21*3) + mana dreapta (21*3) = 194.
-# Am eliminat face_landmarks (1404 valori, 88% din vectorul vechi) pentru ca domina invatarea si modelul nu mai gasea diferentele intre semnele facute cu mainile.
+
 DIM_VECTOR = 194
 PRAG_DETECTIE = 0.70
 NR_CONFIRMARE = 3
 
-# Rezolutia ceruta camerei. Multe webcamuri ruleaza implicit pe 640x480 si imaginea iese mica si neclara. Setam HD ca sa avem mai multi pixeli pentru maini.
 LATIME_CAMERA = 1280
 INALTIME_CAMERA = 720
 
@@ -69,8 +67,7 @@ def proceseaza_frame(frame, holistic):
 
 
 def deseneaza_puncte(imagine, rezultate):
-    # Nu mai desenam face_landmarks pentru ca nu mai sunt folosite in vectorul
-    # care intra in model. Pastram corpul si ambele maini.
+   
     elemente = [
         (rezultate.pose_landmarks, mp_holistic.POSE_CONNECTIONS),
         (rezultate.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS),
@@ -89,9 +86,7 @@ def deseneaza_puncte(imagine, rezultate):
 
 
 def extrage_vector(rezultate):
-    # CORP - DOAR PANA LA BRAU (punctele 0-16)
-    # Include nas, ochi, urechi, gura, umeri, coate, incheieturi -> avem deja
-    # pozitia capului si bratelor, deci face_landmarks complet nu mai este necesar.
+    
     corp = np.zeros(17 * 4)
     if rezultate.pose_landmarks:
         corp_landmarks = [
@@ -117,8 +112,7 @@ def extrage_vector(rezultate):
         else np.zeros(21 * 3)
     )
 
-    # MANA DREAPTA
-    mana_dreapta = (
+     mana_dreapta = (
         np.array(
             [
                 [punct.x, punct.y, punct.z]
@@ -146,8 +140,7 @@ def porneste_camera(camera_index):
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, LATIME_CAMERA)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, INALTIME_CAMERA)
 
-    # Citim valorile efective (uneori camera nu accepta exact ce am cerut)
-    latime_efectiva = int(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
+       latime_efectiva = int(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
     inaltime_efectiva = int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
     print(f"Camera ruleaza la {latime_efectiva}x{inaltime_efectiva}.")
 
@@ -161,8 +154,7 @@ def pregateste_fereastra(nume_fereastra):
 
 
 def deseneaza_ghidaj_incadrare(imagine):
-    # Desenam o margine subtila si un punct central ca utilizatorul sa stie
-    # daca este bine pozitionat in fata camerei.
+    
     h, w, _ = imagine.shape
     marja_x = int(w * 0.08)
     marja_y = int(h * 0.08)
@@ -415,9 +407,6 @@ def antreneaza_model():
 
     y_categoric = to_categorical(y, num_classes=len(expresii))
 
-    # Calculam dinamic marimea setului de test:
-    # - minim 1 exemplu per clasa (cerinta sklearn cand folosim stratify)
-    # - dar nu mai putin de 15% din total
     nr_clase = len(expresii)
     nr_test = max(nr_clase, int(round(len(X) * 0.15)))
 
