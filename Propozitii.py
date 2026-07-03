@@ -42,24 +42,19 @@ PRAG_LITERA_1M = 0.70
 PRAG_LITERA_2M = 0.70
 PRAG_EXPRESIE = 0.70
 
-# MIN_CADRE_ACEEASI_LITERA = cate cadre din buffer trebuie sa coincida ca litera sa fie acceptata.
 CADRE_CONFIRM_LITERA = 5
 MIN_CADRE_ACEEASI_LITERA = 3
 CADRE_CONFIRM_EXPRESIE = 4
 MIN_CADRE_ACEEASI_EXPRESIE = 3
 
 LEN_SECVENTA_EXPRESIE = 30
-# Cat timp trebuie sa ai mainile in afara cadrului ca sistemul sa confirme automat cuvantul.
+
 SECUNDE_FARA_MAINI_CONFIRM_CUVANT = 0.5
 SECUNDE_COOLDOWN_EXPRESIE = 1.8
 
-# Daca gesturile tale sunt mai lente, scade usor EXPRESSION_MOTION_MIN.
 STATIC_MOTION_MAX = 0.012
 EXPRESSION_MOTION_MIN = 0.010
 
-# Daca este True, la fiecare ~30 cadre in care modelul de expresii face o predictie,
-# se printeaza in terminal probabilitatile pentru toate clasele. Util pentru a vedea
-# daca modelul tine cont de gest sau e blocat pe o singura clasa.
 DEBUG_EXPRESII = True
 DEBUG_INTERVAL_CADRE = 30
 
@@ -72,58 +67,25 @@ TEXT_AFISAT = {
     "MULTUMESC": "mulțumesc",
     "TE_ROG": "te rog",
     "AJUTOR": "ajutor",
-    "NOROC": "noroc",
-    "IUBESC": "iubesc",
     "DA": "da",
     "NU": "nu",
-    "NU_STIU": "nu știu",
-    "BINE": "bine",
-    "RAU": "rău",
-    "MERGE": "merge",
-    "VREA": "vrea",
-    "ARE": "are",
-    "ESTE": "este",
-    "CUMPARA": "cumpără",
-    "MANANCA": "mănâncă",
-    "BEA": "bea",
-    "ACASA": "acasă",
-    "SCOALA": "la școală",
-    "CUMPARATURI": "la cumpărături",
-    "MEDIC": "la medic",
-    "APA": "apă",
-    "MANCARE": "mâncare",
-    "TELEFON": "telefon",
-    "FOAME": "foame",
-    "SETE": "sete",
-    "DURERE": "durere",
-    "OBOSIT": "obosit",
-    "FRIG": "frig",
-    "CALD": "cald",
-    "MARE": "mare",
-    "MIC": "mic",
-    "REPEDE": "repede",
-    "INCET": "încet",
     "DREAPTA": "dreapta",
     "STANGA": "stânga",
     "SUS": "sus",
     "JOS": "jos",
-    "ACUM": "acum",
-    "MAINE": "mâine",
-    "IERI": "ieri",
-    "ASTAZI": "astăzi",
-    "TATA": "tată",
-    "MAMA": "mamă",
-    "FRATE": "frate",
-    "SORA": "soră",
-    "PRIETEN": "prieten",
-    "UNDE": "unde",
-    "CAND": "când",
-    "CUM": "cum",
-    "PAUZA": "",
-    "STERGE": "",
-    "FINAL": "",
-    "CONFIRMA": "",
-}
+    "BUNA_ZIUA": "bună ziua",
+    "LA_REVEDERE": "la revedere",
+    "DOCUMENT": "document",
+    "PENTRU": "pentru",
+    "FACULTATEA": "facultatea",
+    "CU_PLACERE": "cu plăcere",
+    "UNIVERSITATE": "universitate",
+    "PROFESOR": "profesor",
+    "DOMN": "domn",
+    "Z": "z",
+    "J": "j",
+    "PUNCT_NEUTRU": ""
+    }
 
 COMENZI_CONTROL = {"PAUZA", "STERGE", "FINAL", "CONFIRMA"}
 
@@ -170,8 +132,6 @@ def afiseaza_expresii_disponibile():
         print(f"{index:2}. {cheie:<20} -> {valoare}")
     print("=" * 60)
 
-
-# Utilitare model si text
 
 def text_pentru_cv2(text):
     """OpenCV putText nu reda bine diacriticele; pe ecran folosim ASCII."""
@@ -309,8 +269,6 @@ def token_stabil(buffer, minim_aparitii):
 
     return ""
 
-# Extragere vectori - pastrate compatibil cu scripturile de antrenare
-
 def extrage_vector_litera(hand_landmarks):
     xs = np.array([lm.x for lm in hand_landmarks.landmark], dtype=np.float32)
     ys = np.array([lm.y for lm in hand_landmarks.landmark], dtype=np.float32)
@@ -337,9 +295,7 @@ def extrage_vector_litera_2_maini(hand_landmarks_list):
 
 
 def extrage_vector_expresie(rezultate):
-    # Vector redus: corp + ambele maini (fara face_landmarks).
-    # Pose 0-16 include nas/ochi/urechi/gura/umeri/coate/incheieturi,
-    # deci pozitia capului este pastrata fara cele 1404 valori din face mesh.
+  
     corp = np.zeros(17 * 4, dtype=np.float32)
     if rezultate.pose_landmarks:
         puncte_corp = [
@@ -426,7 +382,6 @@ class SistemPropozitii:
         self.timp_ultima_expresie = 0.0
         self.pauza_detectie_pana_la = 0.0
 
-        # Counter pentru afisarea periodica a probabilitatilor (debug expresii).
         self.contor_debug_expresii = 0
 
     def proceseaza_frame_maini(self, frame, detector_maini):
@@ -569,7 +524,6 @@ class SistemPropozitii:
         incredere = float(predictie[index])
         expresie = str(self.expresii[index]).upper()
 
-        # --- Debug: arata probabilitatile pentru toate clasele, periodic ---
         if DEBUG_EXPRESII:
             self.contor_debug_expresii += 1
             if self.contor_debug_expresii >= DEBUG_INTERVAL_CADRE:
@@ -656,8 +610,6 @@ class SistemPropozitii:
         miscare_medie, miscare_varf = self.calculeaza_miscare(hand_landmarks_list)
         expresie_confirmata = False
 
-        # Modelul de expresii ruleaza permanent in paralel cu cel de litere.
-        # Cand este detectata o expresie reala (incredere mare + miscare ampla),cuvantul curent este confirmat automat in actualizeaza_expresie, asa ca semnatarul nu mai trebuie sa scoata mainile din cadru.
         if self.model_expresii is not None and self.expresii is not None:
             rezultate_holistic = self.proceseaza_frame_expresii(
                 frame, detector_holistic
@@ -749,9 +701,7 @@ class SistemPropozitii:
             (120, 230, 120),
             2,
         )
-
-        # Indicator de stare in coltul dreapta-sus. Modelul de expresii ruleaza permanent in paralel; il avertizam pe utilizator daca un cuvant in curs
-        # va fi confirmat automat la urmatoarea expresie detectata.
+        
         if self.cuvant_curent:
             text_mod = f"MOD: LITERE  ({self.cuvant_curent} se confirma la expresie)"
             culoare_mod = (120, 200, 255)  # albastru deschis
@@ -759,8 +709,7 @@ class SistemPropozitii:
             text_mod = "MOD: LITERE + EXPRESII (paralel)"
             culoare_mod = (140, 220, 140)  # verde
 
-        # Calculam latimea textului ca sa il aliniem la dreapta
-        (text_w, _), _ = cv2.getTextSize(
+          (text_w, _), _ = cv2.getTextSize(
             text_mod, cv2.FONT_HERSHEY_SIMPLEX, 0.55, 1
         )
         pune_text(
@@ -785,8 +734,7 @@ class SistemPropozitii:
         cv2.waitKey(2500)
 
     def ruleaza(self):
-        # Pe Windows folosim DSHOW pentru ca initializeaza camera mult mai rapid
-        # si accepta mai consistent rezolutiile HD.
+
         if os.name == "nt":
             camera = cv2.VideoCapture(CAMERA_INDEX, cv2.CAP_DSHOW)
         else:
@@ -796,14 +744,12 @@ class SistemPropozitii:
             print("[EROARE] Nu pot porni camera.")
             return
 
-        # Cerem rezolutia HD. Daca webcamul nu o accepta, ramane la cat poate.
         camera.set(cv2.CAP_PROP_FRAME_WIDTH, LATIME_CAMERA)
         camera.set(cv2.CAP_PROP_FRAME_HEIGHT, INALTIME_CAMERA)
         latime_efectiva = int(camera.get(cv2.CAP_PROP_FRAME_WIDTH))
         inaltime_efectiva = int(camera.get(cv2.CAP_PROP_FRAME_HEIGHT))
         print(f"Camera ruleaza la {latime_efectiva}x{inaltime_efectiva}.")
 
-        # Fereastra redimensionabila pornita la rezolutia camerei.
         cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
         cv2.resizeWindow(WINDOW_NAME, LATIME_CAMERA, INALTIME_CAMERA)
 
