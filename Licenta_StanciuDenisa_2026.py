@@ -8,8 +8,6 @@ from datetime import datetime
 import cv2
 import mediapipe as mp
 
-# Sistemul de recunoastere (litere + expresii) il import din Propozitii.py
-# ca sa pastrez fix logica si parametrii pe care i a calibrat utilizatorul acolo.
 from Propozitii import (
     SistemPropozitii,
     deseneaza_ghidaj_incadrare,
@@ -23,22 +21,14 @@ mp_holistic = mp.solutions.holistic
 
 app = Flask(__name__)
 
-# Cheia secreta este folosita de Flask pentru a cripta sesiunile utilizatorilor.
-# In productie ar trebui citita dintr o variabila de mediu, dar pentru un prototip local
-# este suficient sa fie definita aici.
 app.config['SECRET_KEY'] = 'cheie_secreta_licenta_stanciu_denisa_2026'
 
-# 1. SETARILE BAZEI DE DATE
-# Folosim o cale absoluta ca fisierul licenta.db sa apara mereu langa app.py,
-# nu intr un subfolder ascuns precum 'instance'. Asa stim exact unde sa l deschidem.
 DIRECTOR_PROIECT = os.path.dirname(os.path.abspath(__file__))
 CALE_BAZA_DATE = os.path.join(DIRECTOR_PROIECT, 'licenta.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{CALE_BAZA_DATE}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-
-# Tabelul 1: Datele utilizatorilor
 class Utilizator(db.Model):
     uuid = db.Column(db.String(16), primary_key=True)
     nume = db.Column(db.String(50), nullable=False)
@@ -47,9 +37,6 @@ class Utilizator(db.Model):
     telefon = db.Column(db.String(20), unique=True, nullable=False)
     parola = db.Column(db.String(200), nullable=False)
 
-    # Un utilizator poate avea mai multe sesiuni.
-    # cascade='all, delete-orphan' face ca, atunci cand stergi un utilizator,
-    # toate sesiunile lui si toate mesajele din acele sesiuni sa dispara automat.
     sesiuni = db.relationship(
         'Sesiune',
         backref='utilizator',
@@ -57,8 +44,6 @@ class Utilizator(db.Model):
         cascade='all, delete-orphan'
     )
 
-
-# Tabelul 2: Sesiunile de comunicare (o conversatie)
 class Sesiune(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     utilizator_uuid = db.Column(
@@ -69,7 +54,6 @@ class Sesiune(db.Model):
     data_start = db.Column(db.DateTime, default=datetime.now, nullable=False)
     data_end = db.Column(db.DateTime, nullable=True)
 
-    # O sesiune contine mai multe mesaje, in ordinea in care au fost rostite.
     mesaje = db.relationship(
         'Mesaj',
         backref='sesiune',
@@ -78,8 +62,6 @@ class Sesiune(db.Model):
         order_by='Mesaj.data'
     )
 
-
-# Tabelul 3: Mesajele propriu zise dintr o conversatie
 class Mesaj(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sesiune_id = db.Column(
@@ -96,14 +78,6 @@ class Mesaj(db.Model):
 with app.app_context():
     db.create_all()
 
-
-# 2. RECUNOASTEREA SEMNELOR IN BROWSER
-# Fluxul: browser cere /video_feed -> Flask deschide camera -> pentru fiecare cadru
-# trece prin SistemPropozitii.proceseaza_detectie (logica ta din Propozitii.py) ->
-# trimite cadrul cu textul desenat peste, ca imagine JPEG, in browser.
-
-# Mentinem o singura instanta a sistemului pe toata durata rularii aplicatiei.
-# Asa modelele se incarca o singura data, la primul Start camera (nu la fiecare).
 sistem_recunoastere = None
 camera_curenta = None
 
@@ -161,7 +135,6 @@ def genereaza_cadre():
 
     sistem = obtine_sistem_recunoastere()
 
-    # Pe Windows, cv2.CAP_DSHOW initializeaza camera mult mai rapid.
     if os.name == 'nt':
         camera_curenta = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     else:
@@ -174,20 +147,9 @@ def genereaza_cadre():
     camera_curenta.set(cv2.CAP_PROP_FRAME_WIDTH, LATIME_CAMERA)
     camera_curenta.set(cv2.CAP_PROP_FRAME_HEIGHT, INALTIME_CAMERA)
 
-    # Limitam transmisia la 10 cadre/secunda. Pentru recunoasterea de semne nu este
-    # nevoie de 30 FPS (semnele se executa relativ lent), iar 10 FPS reduce de 3 ori
-    # incarcarea pe MediaPipe + retea, ceea ce elimina senzatia de lag.
     FPS_TINTA = 10
     timp_intre_cadre = 1.0 / FPS_TINTA
 
-    # Detectorii MediaPipe se creeaza o singura data si raman activi cat tine
-    # transmisia. La iesire (camera eliberata sau client deconectat) se inchid automat.
-    # Optimizari aplicate:
-    #   - mp_hands: model_complexity=1 (varianta standard - aceeasi cu cea de la antrenare).
-    #     NU folosim 0 aici pentru ca landmark-urile difera usor si modelul de litere
-    #     pierde acuratete (a fost antrenat cu complexity=1, default).
-    #   - mp_holistic: refine_face_landmarks=False (nu folosim fata oricum)
-    #   - mp_holistic: model_complexity=0 (varianta rapida, suficient pentru gesturi mari)
     with mp_hands.Hands(
         min_detection_confidence=0.8,
         min_tracking_confidence=0.5,
@@ -205,7 +167,6 @@ def genereaza_cadre():
             if not ok:
                 break
 
-            # Pacing - asteptam pana cand timpul scurs e cel putin 1/FPS
             acum = time.time()
             de_asteptat = timp_intre_cadre - (acum - timp_ultim_cadru)
             if de_asteptat > 0:
@@ -268,8 +229,6 @@ def text_semne_curent():
 
     return jsonify({'text': text, 'cuvant_in_curs': cuvant_in_curs})
 
-
-# 3. FUNCTII AJUTATOARE PENTRU AUTENTIFICARE
 def utilizator_conectat():
     """Intoarce utilizatorul logat curent sau None daca nimeni nu e conectat."""
     uuid_curent = session.get('utilizator_uuid')
@@ -294,10 +253,9 @@ def sesiune_activa(utilizator):
     return sesiune
 
 
-# 4. PAGINILE SI AUTENTIFICAREA
 @app.route('/')
 def pagina_principala():
-    # Daca utilizatorul e deja conectat, mergem direct la aplicatie.
+
     if utilizator_conectat():
         return redirect(url_for('aplicatie'))
     return render_template('pagina_principala.html')
@@ -314,7 +272,6 @@ def aplicatie():
     if not utilizator:
         return redirect(url_for('pagina_principala'))
 
-    # Ne asiguram ca exista o sesiune activa pentru utilizatorul curent.
     sesiune = sesiune_activa(utilizator)
     return render_template(
         'interfata_preluare_date.html',
@@ -378,7 +335,6 @@ def inregistrare():
         db.session.add(cont_nou)
         db.session.commit()
 
-        # Conectam automat utilizatorul dupa inregistrare.
         session['utilizator_uuid'] = cont_nou.uuid
         return redirect(url_for('aplicatie'))
     except Exception:
@@ -391,7 +347,7 @@ def inregistrare():
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    # Daca a ramas o camera pornita, o inchidem si salvam propozitia detectata.
+
     global camera_curenta
     salveaza_propozitie_detectata()
     if camera_curenta is not None:
@@ -402,8 +358,6 @@ def logout():
     session.pop('utilizator_uuid', None)
     return redirect(url_for('pagina_principala'))
 
-
-# 5. SALVARE MESAJE SI INCHEIERE SESIUNE
 @app.route('/salveaza_mesaj', methods=['POST'])
 def salveaza_mesaj():
     utilizator = utilizator_conectat()
@@ -465,7 +419,6 @@ def incheie_sesiune():
     if not utilizator:
         return redirect(url_for('pagina_principala'))
 
-    # Daca camera era pornita, salvam propozitia curenta si eliberam camera.
     global camera_curenta
     salveaza_propozitie_detectata()
     if camera_curenta is not None:
@@ -473,7 +426,6 @@ def incheie_sesiune():
     camera_curenta = None
     reseteaza_stare_recunoastere()
 
-    # Marcam sesiunea curenta ca incheiata.
     sesiune = Sesiune.query.filter_by(
         utilizator_uuid=utilizator.uuid,
         data_end=None
@@ -485,8 +437,6 @@ def incheie_sesiune():
 
     return redirect(url_for('istoric'))
 
-
-# 6. ISTORICUL CONVERSATIILOR
 @app.route('/istoric')
 def istoric():
     utilizator = utilizator_conectat()
@@ -500,8 +450,6 @@ def istoric():
 
     return render_template('istoric.html', utilizator=utilizator, sesiuni=sesiuni)
 
-
-# 7. STERGEREA DATELOR (GDPR)
 @app.route('/stergere_cont', methods=['GET', 'POST'])
 def stergere_cont():
     if request.method == 'GET':
@@ -515,8 +463,7 @@ def stergere_cont():
     ).first()
 
     if utilizator_gasit and check_password_hash(utilizator_gasit.parola, parola_introdusa):
-        # Stergerea utilizatorului declanseaza si stergerea tuturor sesiunilor si mesajelor lui,
-        # datorita cascadei definite in modelul Utilizator.
+ 
         db.session.delete(utilizator_gasit)
         db.session.commit()
         session.pop('utilizator_uuid', None)
